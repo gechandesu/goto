@@ -1,0 +1,92 @@
+****
+GOTO
+****
+
+A faster way to  cd to commonly used directories inspired  by commacd. Tested on
+Bash 5.1, but should work on most versions.
+
+Installation
+************
+
+On most operatin systems with Bash run:
+
+    $ curl -o ~/.goto.sh \
+        -sSL https://gitea.gch.icu/ge/goto/raw/branch/master/goto.sh
+    $ echo '[ -f ~/.goto.sh ] && . ~/.goto.sh' >> ~/.bashrc
+
+Reread ~/.bashrc by command:
+
+    $ source ~/.bashrc
+
+Usage
+*****
+
+Available commands (actually is aliases to functions):
+
+    s [<path>]      bookmark $PWD or <path> (save into ~/.gotosave).
+    g [<pattern>]   goto directory. If you have only one bookmark dir will be
+                    changed without prompt. Type dir number in prompt to cd.
+
+Run `g` to show the entire list of bookmarks and select the one you need.
+
+You don't even need  to press `Enter` to confirm your selection  -- just type in
+the bookmark number. The exception is when you have a two-digit number (or more)
+and you select a  bookmark whose number is less than 10. Then  you have to press
+`Enter`.
+
+You can pass the Perl regular expression  (processed by grep -Pi) as an for 'g'.
+At the  same time, if  only one  bookmark is found,  then the directory  will be
+changed directly to it. If there are  several bookmarks, you will be prompted to
+choose the appropriate  one. Also you can use autocompletion  by pressing `Tab`.
+It works in a similar way.
+
+Examples
+--------
+
+Previously set up your commonly used dirs. Specify dir as argument:
+
+    $ s ~/Documents
+    $ s ~/Downloads
+
+or cd into dir and simply run
+
+    $ s
+
+Goto directory by number:
+
+    $ g
+    0   ~/Documents/
+    1   ~/Downloads/
+    : <type number here, e.g. 1>
+    => cd /home/user/Downloads
+
+Goto '~/Downloads' directory by regex:
+
+    $ g w
+    => cd /home/user/Downloads
+
+Another way :)
+
+    $ g 'do[^c]'
+    => cd /home/gd/Downloads
+
+and etc.
+
+Tips
+****
+
+Combining commacd, goto and Bash autocd option gives a great experience!
+
+Add to you ~/.bashrc following:
+    shopt -s autocd
+Now you can type just directory name without 'cd' to change directory.
+
+Get commacd here: https://github.com/shyiko/commacd
+
+Alternatives?
+*************
+
+Some goto alternatives:
+
+    - aliases (yep, Bash aliases)
+    - https://github.com/huyng/bashmarks
