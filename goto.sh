@@ -1,5 +1,5 @@
-# * goto (goto directory) - bookmark directorie in Bash.
-# * versuion: 0.1
+# * g (goto directory) - bookmark directories in Bash.
+# * versuion: 0.2
 
 # This is free and unencumbered software released into the public domain.
 #
@@ -45,13 +45,13 @@ _goto_cd() {
 _goto_prompt() {
     ##### Prompt and cd #####
 
-    # Exit if no dirs in ~/.gotosave
+    # Exit if no dirs in ~/.goto_saved
     if [ "${#dirs[@]}" -eq 0 ] || [[ "${dirs[@]}" == '' ]]; then
         echo goto: nothing to do; return 1
     fi
 
     # cd into dir without prompt if you have single directory
-    # in ~/.gotosave
+    # in ~/.goto_saved
     if [ "${#dirs[@]}" -eq 1 ]; then
         _goto_cd "${dirs[@]}" && return 0
     fi
@@ -84,7 +84,7 @@ _goto_prompt() {
 }
 
 _goto_search() {
-    grep -iP "$1" ~/.gotosave
+    grep -iP "$1" ~/.goto_saved
 }
 
 _goto() {
@@ -92,13 +92,13 @@ _goto() {
 
     # Get directory list ('dirs' array)
     dirs=()
-    if [ -f ~/.gotosave ]; then
+    if [ -f ~/.goto_saved ]; then
         if [ "$1" ]; then
             # Search dirs with Perl regex
             _source="$(_goto_search "$1")"
         else
             # Load all directories
-            _source="$(<~/.gotosave)"
+            _source="$(<~/.goto_saved)"
         fi
         while read -r dir; do
             dirs+=("$dir")
@@ -109,7 +109,7 @@ _goto() {
 }
 
 _goto_save() {
-    ##### Save PWD or 1 to ~/.gotosave file #####
+    ##### Save PWD or 1 to ~/.goto_saved file #####
 
     local dir
     if [ "$1" ]; then
@@ -118,13 +118,13 @@ _goto_save() {
         dir="$PWD"
     fi
 
-    # Exit if directory is already in ~/.gotosave
-    if grep "^${dir%%+(/)}\$" ~/.gotosave > /dev/null; then
+    # Exit if directory is already in ~/.goto_saved
+    if grep "^${dir%%+(/)}\$" ~/.goto_saved > /dev/null; then
         return 1
     fi
 
     # Save directory
-    if echo "${dir%%+(/)}" >> ~/.gotosave; then
+    if echo "${dir%%+(/)}" >> ~/.goto_saved; then
         echo "$dir"
     fi
 }
@@ -139,4 +139,4 @@ _goto_complete() {
 complete -F _goto_complete g
 
 alias g='_goto'
-alias s='_goto_save'
+alias g-save='_goto_save'

@@ -1,31 +1,31 @@
-****
-GOTO
-****
+********
+G (GOTO)
+********
 
-A faster way to  cd to commonly used directories inspired  by commacd. Tested on
+A faster way to cd to commonly used directories. Inspired by commacd. Tested on
 Bash 5.1, but should work on most versions.
 
 Installation
 ************
 
-On most operatin systems with Bash run:
+On most operatin systems with Bash run::
 
     $ curl -o ~/.goto.sh \
         -sSL https://gitea.gch.icu/ge/goto/raw/branch/master/goto.sh
     $ echo '[ -f ~/.goto.sh ] && . ~/.goto.sh' >> ~/.bashrc
 
-Reread ~/.bashrc by command:
+Reread ~/.bashrc by command::
 
     $ source ~/.bashrc
 
 Usage
 *****
 
-Available commands (actually is aliases to functions):
+Available commands (actually is aliases to functions)::
 
-    s [<path>]      bookmark $PWD or <path> (save into ~/.gotosave).
-    g [<pattern>]   goto directory. If you have only one bookmark dir will be
-                    changed without prompt. Type dir number in prompt to cd.
+    g [<pattern>]       goto directory. If you have single bookmark dir will be
+                        changed without prompt. Type dir number in prompt to cd.
+    g-save [<path>]     bookmark $PWD or <path> (save into ~/.goto_saved).
 
 Run `g` to show the entire list of bookmarks and select the one you need.
 
@@ -43,16 +43,16 @@ It works in a similar way.
 Examples
 --------
 
-Previously set up your commonly used dirs. Specify dir as argument:
+Previously set up your commonly used dirs. Specify dir as argument::
 
-    $ s ~/Documents
-    $ s ~/Downloads
+    $ g-save ~/Documents
+    $ g-save ~/Downloads
 
-or cd into dir and simply run
+or cd into dir and simply run::
 
-    $ s
+    $ g-save
 
-Goto directory by number:
+Go to directory by number::
 
     $ g
     0   ~/Documents/
@@ -60,33 +60,45 @@ Goto directory by number:
     : <type number here, e.g. 1>
     => cd /home/user/Downloads
 
-Goto '~/Downloads' directory by regex:
+Goto '~/Downloads' directory by regex::
 
     $ g w
     => cd /home/user/Downloads
 
-Another way :)
+Another way :)::
 
     $ g 'do[^c]'
     => cd /home/gd/Downloads
 
 and etc.
 
+Changelog
+*********
+
+06 Feb 2022
+    - `~/.gotosave` renamed to `~/.goto_saved`
+    - Alias `s` changed to `g-save`
+
+07 Jan 2022
+    Initial release.
+
 Tips
 ****
 
-Combining commacd, goto and Bash autocd option gives a great experience!
+Combining `commacd`, `g` and Bash ``autocd`` option gives a great experience!
 
-Add to you ~/.bashrc following:
+Add to you ~/.bashrc following line::
+
     shopt -s autocd
+
 Now you can type just directory name without 'cd' to change directory.
 
-Get commacd here: https://github.com/shyiko/commacd
+Get `commacd` here: https://github.com/shyiko/commacd
 
 Alternatives?
 *************
 
-Some goto alternatives:
+Some `g` alternatives:
 
-    - aliases (yep, Bash aliases)
+    - aliases (yep, Bash builtin aliases)
     - https://github.com/huyng/bashmarks
