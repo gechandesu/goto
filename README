@@ -1,31 +1,23 @@
-********
-G (GOTO)
-********
-
 A faster way to cd to commonly used directories. Inspired by commacd. Tested on
-Bash 5.1, but should work on most versions.
+Bash and Dash.
 
 Installation
-************
+============
 
-On most operatin systems with Bash run::
+On most operatin systems with Bash run:
 
-    $ curl -o ~/.goto.sh \
-        -sSL https://gitea.gch.icu/ge/goto/raw/branch/master/goto.sh
-    $ echo '[ -f ~/.goto.sh ] && . ~/.goto.sh' >> ~/.bashrc
-
-Reread ~/.bashrc by command::
-
+    $ curl -o ~/.g.sh -sSL https://git.nxhs.cloud/ge/g/raw/branch/master/g.sh
+    $ echo '[ -f ~/.g.sh ] && . ~/.g.sh' >> ~/.bashrc
     $ source ~/.bashrc
 
 Usage
-*****
+=====
 
-Available commands (actually is aliases to functions)::
+Available commands (actually is aliases to functions):
 
     g [<pattern>]       goto directory. If you have single bookmark dir will be
                         changed without prompt. Type dir number in prompt to cd.
-    g-save [<path>]     bookmark $PWD or <path> (save into ~/.goto_saved).
+    g_save [<path>]     bookmark $PWD or <path> (save into ~/.g).
 
 Run `g` to show the entire list of bookmarks and select the one you need.
 
@@ -34,10 +26,10 @@ the bookmark number. The exception is when you have a two-digit number (or more)
 and you select a  bookmark whose number is less than 10. Then  you have to press
 `Enter`.
 
-You can pass the Perl regular expression  (processed by grep -Pi) as an for 'g'.
+You can pass the Perl regular expression  (processed by grep -Pi) as an for `g`.
 At the  same time, if  only one  bookmark is found,  then the directory  will be
 changed directly to it. If there are  several bookmarks, you will be prompted to
-choose the appropriate  one. Also you can use autocompletion  by pressing `Tab`.
+choose the appropriate  one. Also you can use autocompletion  by pressing Tab.
 It works in a similar way.
 
 Examples
@@ -45,60 +37,65 @@ Examples
 
 Previously set up your commonly used dirs. Specify dir as argument::
 
-    $ g-save ~/Documents
-    $ g-save ~/Downloads
+    $ g_save ~/Documents
+    $ g_save ~/Downloads
 
 or cd into dir and simply run::
 
-    $ g-save
+    $ g_save
 
-Go to directory by number::
+Go to directory by number:
 
     $ g
     0   ~/Documents/
     1   ~/Downloads/
     : <type number here, e.g. 1>
-    => cd /home/user/Downloads
+    => cd /home/ge/Downloads
 
-Goto '~/Downloads' directory by regex::
+Goto '~/Downloads' directory by regex:
 
     $ g w
-    => cd /home/user/Downloads
+    => cd /home/ge/Downloads
 
-Another way :)::
+Another way:
 
     $ g 'do[^c]'
-    => cd /home/gd/Downloads
+    => cd /home/ge/Downloads
 
 and etc.
 
 Changelog
-*********
+=========
 
-06 Feb 2022
-    - `~/.gotosave` renamed to `~/.goto_saved`
-    - Alias `s` changed to `g-save`
+v0.3 (05 Oct 2022)
 
-07 Jan 2022
-    Initial release.
+* Refactored, added POSIX-compatibility
+* Script renamed to `g.sh`
+* ~/.goto_saved renamed to ~/.g
+* Alias `g-save` changed to `g_save`
+* Functions renamed
+
+v0.2 (06 Feb 2022)
+
+* ~/.gotosave renamed to ~/.goto_saved
+* Alias `s` changed to `g-save`
+
+v0.1 (07 Jan 2022)
+
+Initial release.
 
 Tips
-****
+====
 
-Combining `commacd`, `g` and Bash ``autocd`` option gives a great experience!
-
-Add to you ~/.bashrc following line::
-
-    shopt -s autocd
-
-Now you can type just directory name without 'cd' to change directory.
+Combining  `commacd`, `g`  and Bash  ``shopt -s  autocd`` option  gives a  great
+experience!
 
 Get `commacd` here: https://github.com/shyiko/commacd
 
 Alternatives?
-*************
+=============
 
 Some `g` alternatives:
 
-    - aliases (yep, Bash builtin aliases)
-    - https://github.com/huyng/bashmarks
+* aliases (yep, Bash builtin aliases)
+* https://github.com/huyng/bashmarks

@@ -1,5 +1,5 @@
-# * g (goto directory) - bookmark directories in Bash.
-# * versuion: 0.2
+# * g (goto directory) - bookmark directories in shell.
+# * version: 0.3
 
 # This is free and unencumbered software released into the public domain.
 #
@@ -26,52 +26,63 @@
 #
 # For more information, please refer to <http://unlicense.org/>
 
-_goto_cd() {
-    ##### cd into directory #####
+_g_file=~/.g
 
+_read_char() {
+    # Read number of chars into variable
+    # Usage: _read_char VAR NUM
+    stty -icanon
+    eval "$1=\$(dd bs=1 count="$2" 2>/dev/null)"
+    stty icanon echo
+}
+
+_g_cd() {
+    # cd into directory
     if [ ! -d "$1" ]; then
-        echo "goto: no such directory $1" >&2
+        printf 'g: no such directory %s\n' "$1" >&2
         return 1
     fi
-
     if cd -- "$1" > /dev/null; then
         echo "$1"
     else
-        echo -e "\bgoto: cannot cd into $1" >&2
+        printf '\bg: cannot cd into %s\n' "$1" >&2
     fi
     return "$?"
 }
 
-_goto_prompt() {
-    ##### Prompt and cd #####
+_g_prompt() {
+    # Prompt and cd
 
-    # Exit if no dirs in ~/.goto_saved
-    if [ "${#dirs[@]}" -eq 0 ] || [[ "${dirs[@]}" == '' ]]; then
+    # Exit if no dirs in $_g_file
+    if [ "$#" -eq 0 ] || [ "$*" = '' ]; then
         echo goto: nothing to do; return 1
     fi
 
     # cd into dir without prompt if you have single directory
-    # in ~/.goto_saved
-    if [ "${#dirs[@]}" -eq 1 ]; then
-        _goto_cd "${dirs[@]}" && return 0
+    # in $_g_file
+    if [ "$(echo "$*" | wc -l)" -eq 1 ]; then
+        _g_cd "$*" && return 0
     fi
 
     # Print directory list
-    for i in "${!dirs[@]}"; do
-        echo -e "$i\t${dirs[$i]%%+(/)}/" | sed "s%${HOME}%~%"
+    i=0
+    echo "$*" | while read -r dir; do
+        dir="$(echo "$dir" | sed "s%$HOME%~%")"
+        printf '%s\t%s\n' "$i" "$dir"
+        i=$((i+1))
     done
 
-    # Count digits in number of dirs for 'read'
-    local dirscount="$((${#dirs[@]}-1))"
-    local numlen="${#dirscount}"
-
-    # Read input to 'num' and set 'target' directory
-    read -r -n "$numlen" -p ': ' num
-    if [[ "$num" =~ [0-9]+ ]]; then
-        target="${dirs[$num]}";
+    # Input target dir number
+    dirs_num="$(echo "$*" | wc -l)"
+    num_len="${#dirs_num}"
+    printf '%s' ": "
+    _read_char _num "$num_len"
+    if echo "$_num" | grep -E '[0-9]+' >/dev/null; then
+        _target_dir="$(echo "$*" |
+            awk -v line="$((_num+1))" 'NR==line {print}')"
         # Print new line to prevent line concatenation
-        [ "${#num}" -eq "$numlen" ] && echo
-    elif [[ "$num" == '' ]]; then
+        [ "${#_num}" -eq "$num_len" ] && echo
+    elif [ "$_num" = '' ]; then
         return 1  # Just exit if you press Enter.
     else
         # Print new line and exit if printable chars passed.
@@ -80,63 +91,60 @@ _goto_prompt() {
     fi
 
     # cd into directory
-    _goto_cd "$target"
+    _g_cd "$_target_dir"
 }
 
-_goto_search() {
-    grep -iP "$1" ~/.goto_saved
+_g_search() {
+    grep -iP "$1" "$_g_file"
 }
 
-_goto() {
-    ##### Main function #####
-
+_g() {
+    # Main function
     # Get directory list ('dirs' array)
-    dirs=()
-    if [ -f ~/.goto_saved ]; then
+    if [ -f "$_g_file" ]; then
         if [ "$1" ]; then
             # Search dirs with Perl regex
-            _source="$(_goto_search "$1")"
+            _dirs="$(_g_search "$1")"
         else
             # Load all directories
-            _source="$(<~/.goto_saved)"
+            _dirs="$(cat "$_g_file")"
         fi
-        while read -r dir; do
-            dirs+=("$dir")
-        done <<< "$_source"
     fi
 
-    _goto_prompt  # prompt and cd
+    _g_prompt "$_dirs" # prompt and cd
 }
 
-_goto_save() {
-    ##### Save PWD or 1 to ~/.goto_saved file #####
+_g_save() {
+    # Save dir in $_g_file
 
-    local dir
-    if [ "$1" ]; then
-        dir="$1"
+    if [ -n "$1" ]; then
+        _dir="$1"
     else
-        dir="$PWD"
+        _dir="$PWD"
     fi
 
-    # Exit if directory is already in ~/.goto_saved
-    if grep "^${dir%%+(/)}\$" ~/.goto_saved > /dev/null; then
+    # Exit if directory is already in $_g_file
+    if grep "^${_dir%%+(/)}\$" "$_g_file" >/dev/null 2>&1; then
         return 1
     fi
 
     # Save directory
-    if echo "${dir%%+(/)}" >> ~/.goto_saved; then
-        echo "$dir"
+    if echo "${_dir%%+(/)}" >> "$_g_file"; then
+        echo "$_dir"
     fi
 }
 
-_goto_complete() {
-    # Autocomplete directory by pattern
-    local pattern=${COMP_WORDS[COMP_CWORD]}
-    local IFS=$'\n'
-    COMPREPLY=($(compgen -W "$(printf "%s\n" "$(_goto_search "$pattern")")" -- ''))
-}
+if type complete >/dev/null 2>&1; then
+    # Bash completion
+    _g_complete_bash() {
+        _pattern=${COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=($(compgen -W \
+            "$(printf "%s\n" "$(_g_search "$_pattern")")" -- ''))
+    }
+    complete -F _g_complete_bash g
+else
+    :
+fi
 
-complete -F _goto_complete g
-
-alias g='_goto'
-alias g-save='_goto_save'
+alias g='_g'
+alias g_save='_g_save'
