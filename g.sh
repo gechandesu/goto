@@ -1,5 +1,5 @@
 # * g (goto directory) - bookmark directories in shell.
-# * version: 0.3
+# * version: 0.4
 
 # This is free and unencumbered software released into the public domain.
 #
@@ -42,17 +42,16 @@ _g_cd() {
         printf 'g: no such directory %s\n' "$1" >&2
         return 1
     fi
-    if cd -- "$1" > /dev/null; then
-        echo "$1"
+    _dir="$(echo "$1" | sed "s%^~%$HOME%;s%//%/%g")"
+    if cd -- "$_dir" > /dev/null; then
+        echo "$_dir"
     else
-        printf '\bg: cannot cd into %s\n' "$1" >&2
+        printf '\bg: cannot cd into %s\n' "$_dir" >&2
     fi
     return "$?"
 }
 
 _g_prompt() {
-    # Prompt and cd
-
     # Exit if no dirs in $_g_file
     if [ "$#" -eq 0 ] || [ "$*" = '' ]; then
         echo goto: nothing to do; return 1
@@ -99,8 +98,7 @@ _g_search() {
 }
 
 _g() {
-    # Main function
-    # Get directory list ('dirs' array)
+    # Get dirs from $_g_file
     if [ -f "$_g_file" ]; then
         if [ "$1" ]; then
             # Search dirs with Perl regex
@@ -116,9 +114,13 @@ _g() {
 
 _g_save() {
     # Save dir in $_g_file
-
     if [ -n "$1" ]; then
-        _dir="$1"
+        if hash realpath >/dev/null 2>&1; then
+            _dir="$(realpath "$1")"
+        else
+            _dir="$(echo "${PWD}/${1%*/}" | sed 's%//%/%g')"
+            [ -d "$_dir" ] || _dir="$1"
+        fi
     else
         _dir="$PWD"
     fi

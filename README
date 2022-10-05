@@ -67,6 +67,10 @@ and etc.
 Changelog
 =========
 
+v0.4 (05 Oct 2022)
+
+* Fix parsing paths
+
 v0.3 (05 Oct 2022)
 
 * Refactored, added POSIX-compatibility
